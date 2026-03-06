@@ -1,35 +1,3 @@
-using Dapper;
-
-namespace ChatApp.Api.Data;
-
-public class DatabaseInitializer
-{
-    private readonly IDbConnectionFactory _connectionFactory;
-    private readonly ILogger<DatabaseInitializer> _logger;
-
-    public DatabaseInitializer(IDbConnectionFactory connectionFactory, ILogger<DatabaseInitializer> logger)
-    {
-        _connectionFactory = connectionFactory;
-        _logger = logger;
-    }
-
-    public async Task InitializeAsync()
-    {
-        try
-        {
-            using var connection = _connectionFactory.CreateConnection();
-
-            const string sql = """
-IF DB_ID('ChatAppDb') IS NULL
-BEGIN
-    CREATE DATABASE ChatAppDb;
-END;
-
-IF DB_NAME() <> 'ChatAppDb'
-BEGIN
-    USE ChatAppDb;
-END;
-
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Users')
 BEGIN
     CREATE TABLE [dbo].[Users] (
@@ -124,17 +92,3 @@ BEGIN
     ADD CONSTRAINT [FK_Messages_Users_SenderId]
         FOREIGN KEY ([SenderId]) REFERENCES [dbo].[Users] ([Id]);
 END;
-""";
-
-            await connection.ExecuteAsync(sql);
-
-            _logger.LogInformation("Database schema ensured successfully.");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error ensuring database schema.");
-            throw;
-        }
-    }
-}
-

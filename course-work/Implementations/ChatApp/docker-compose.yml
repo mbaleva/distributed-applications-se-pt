@@ -1,26 +1,15 @@
 version: "3.9"
 
 services:
-  sql:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: chatapp-sql
-    environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=Your_strong_123
-    ports:
-      - "1433:1433"
-
   api:
     build: ./ChatApp.Api
     container_name: chatapp-api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=sql;User Id=sa;Password=Your_strong_123;TrustServerCertificate=True;
+      - ConnectionStrings__DefaultConnection=Server=localhost\SQLEXPRESS;Database=ChatAppDb;Integrated Security=True;TrustServerCertificate=True;
       - Jwt__Key=THIS_IS_DEMO_KEY_CHANGE_IN_PRODUCTION_1234567890
       - Jwt__Issuer=ChatApp
       - Jwt__Audience=ChatAppClient
-    depends_on:
-      - sql
     ports:
       - "5001:8080"
 
@@ -34,4 +23,3 @@ services:
       - api
     ports:
       - "5002:8080"
-

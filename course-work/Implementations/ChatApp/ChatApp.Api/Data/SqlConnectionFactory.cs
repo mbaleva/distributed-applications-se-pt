@@ -1,6 +1,7 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
 
+
 namespace ChatApp.Api.Data;
 
 public interface IDbConnectionFactory
@@ -14,13 +15,14 @@ public class SqlConnectionFactory : IDbConnectionFactory
 
     public SqlConnectionFactory(IConfiguration configuration)
     {
-        _connectionString = configuration.GetConnectionString("DefaultConnection")
-                             ?? throw new InvalidOperationException("Connection string 'DefaultConnection' is not configured.");
+        _connectionString = configuration.GetValue<String>("ConnectionString");
     }
 
     public IDbConnection CreateConnection()
     {
-        return new SqlConnection(_connectionString);
+        var conn = new SqlConnection(_connectionString);
+
+        return conn;
     }
 }
 

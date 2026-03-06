@@ -29,6 +29,9 @@ public class UserRepository : IUserRepository
     public async Task<User?> GetByUsernameAsync(string username)
     {
         using var connection = _connectionFactory.CreateConnection();
+        Console.WriteLine(connection.GetType().FullName); // Should be Microsoft.Data.SqlClient.SqlConnection
+        Console.WriteLine(connection.ConnectionString != null);
+        Console.WriteLine(connection.State);
         const string sql = "SELECT * FROM [Users] WHERE [Username] = @Username AND [IsActive] = 1;";
         return await connection.QuerySingleOrDefaultAsync<User>(sql, new { Username = username });
     }
@@ -36,13 +39,16 @@ public class UserRepository : IUserRepository
     public async Task<int> CreateAsync(User user)
     {
         using var connection = _connectionFactory.CreateConnection();
+        Console.WriteLine(connection.GetType().FullName); // Should be Microsoft.Data.SqlClient.SqlConnection
+        Console.WriteLine(connection.ConnectionString != null);
+        Console.WriteLine(connection.State);
+        connection.Open();
         const string sql = """
 INSERT INTO [Users] (Username, PasswordHash, Email, DisplayName, CreatedAt, IsActive)
 VALUES (@Username, @PasswordHash, @Email, @DisplayName, @CreatedAt, @IsActive);
-SELECT CAST(SCOPE_IDENTITY() as int);
 """;
-        var id = await connection.ExecuteScalarAsync<int>(sql, user);
-        return id;
+        await connection.ExecuteAsync(sql, user);
+        return 0;
     }
 }
 
